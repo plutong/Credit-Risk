@@ -53,4 +53,8 @@ if __name__ == '__main__':
     # 在每个应还款月月末进行观察
     df['observe_date'] = df.loc[df['expected_date'].notna(), 'expected_date'].apply(lambda x: dt.date(x.year, x.month, pd.to_datetime(x).days_in_month))
     df.sort_values(['order_id', 'phase'], ascending=[True, True], inplace=True)
-# %%
+    # %% 对每单进行统计
+    df['actual_repay_prin_cumsum'] = df['actual_repay_prin'].cumsum()
+    df['balance'] = df['loan_amt'] - df['actual_repay_prin_cumsum']
+    df['balance_pre'] = df.groupby('order_id')['balance'].transform(lambda x:x.shift(1))
+    # %% 加工逾期标识
